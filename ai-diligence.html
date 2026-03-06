@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Diligence Generator | Practitioner Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --memory-bg: #f4f4f2;
+            --memory-blue: #0055d4;
+            --memory-text: #1a1a1a;
+            --memory-subtext: #666666;
+            --memory-border: #e2e2e0;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--memory-bg);
+            color: var(--memory-text);
+            letter-spacing: -0.01em;
+        }
+
+        .serif-heading {
+            font-family: 'Instrument Serif', serif;
+            color: var(--memory-blue);
+        }
+
+        .memory-card {
+            background: white;
+            border: 1px solid var(--memory-border);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        /* Microsoft Word Style Paper */
+        .word-doc-container {
+            position: relative;
+            background: white;
+            border: 1px solid var(--memory-border);
+            border-radius: 2px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            min-height: 500px;
+            transition: all 0.3s ease;
+        }
+
+        /* Margin Indicators */
+        .margin-mark {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: #d1d1d1;
+            border-style: solid;
+            pointer-events: none;
+        }
+        .top-left { top: 30px; left: 30px; border-width: 1px 0 0 1px; }
+        .top-right { top: 30px; right: 30px; border-width: 1px 1px 0 0; }
+        .bottom-left { bottom: 30px; left: 30px; border-width: 0 0 1px 1px; }
+        .bottom-right { bottom: 30px; right: 30px; border-width: 0 1px 1px 0; }
+
+        .doc-guide-h {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            border-top: 1px dashed #f0f0f0;
+            pointer-events: none;
+        }
+        .doc-guide-v {
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            border-left: 1px dashed #f0f0f0;
+            pointer-events: none;
+        }
+
+        .memory-input {
+            background: transparent;
+            border-bottom: 2px solid var(--memory-border);
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-radius: 0;
+            padding: 8px 0;
+            width: 100%;
+            transition: border-color 0.2s ease;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .memory-input:focus {
+            outline: none;
+            border-color: var(--memory-blue);
+        }
+
+        .custom-entry {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-style: italic;
+            border-bottom-width: 1px;
+            color: var(--memory-blue);
+        }
+
+        .btn-primary {
+            background-color: var(--memory-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--memory-blue);
+            color: white;
+        }
+
+        .tab-btn:not(.active) {
+            color: #999;
+        }
+
+        .label-caps {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--memory-blue);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .hint-text {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+            line-height: 1.3;
+        }
+
+        option {
+            font-family: 'Inter', sans-serif;
+            color: var(--memory-text);
+        }
+
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-6 py-16">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-5xl md:text-7xl serif-heading mb-6">AI Diligence statement generator</h1>
+            
+            <div class="flex justify-center gap-2 mb-8 bg-white p-1 rounded-lg border border-gray-200 inline-flex">
+                <button onclick="switchTab('standard')" id="tab-standard" class="tab-btn active">Standard</button>
+                <button onclick="switchTab('pro')" id="tab-pro" class="tab-btn">Professional</button>
+            </div>
+            
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
+                Clear, simple transparency for practitioners. Show how you use AI to get the job done.
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <div class="lg:col-span-7 space-y-12">
+                
+                <!-- STANDARD VERSION FORM -->
+                <div id="form-standard" class="space-y-8">
+                    <div>
+                        <span class="label-caps">Subject Matter</span>
+                        <select id="stdProjectType" onchange="handleCustomInput(this, 'customStdProjectType')" class="memory-input font-medium">
+                            <option value="document">Document</option>
+                            <option value="project">Project</option>
+                            <option value="content">Content</option>
+                            <option value="CUSTOM">Custom...</option>
+                        </select>
+                        <input type="text" id="customStdProjectType" class="memory-input custom-entry hidden" placeholder="e.g., quarterly report">
+                    </div>
+
+                    <div>
+                        <span class="label-caps">AI Assistant</span>
+                        <select id="stdAiName" onchange="handleCustomInput(this, 'customStdAiName')" class="memory-input font-medium">
+                            <option value="Gemini">Gemini</option>
+                            <option value="Claude">Claude</option>
+                            <option value="ChatGPT">ChatGPT</option>
+                            <option value="Perplexity">Perplexity</option>
+                            <option value="CUSTOM">Custom...</option>
+                        </select>
+                        <input type="text" id="customStdAiName" class="memory-input custom-entry hidden" placeholder="e.g., localized Llama 3">
+                    </div>
+
+                    <div>
+                        <span class="label-caps">Specific Tasks</span>
+                        <select id="stdTasks" onchange="handleCustomInput(this, 'customStdTasks')" class="memory-input font-medium">
+                            <option value="drafting, research, and editing">Drafting, research, & editing</option>
+                            <option value="data analysis and summarization">Data analysis & summarization</option>
+                            <option value="code optimization and debugging">Code optimization & debugging</option>
+                            <option value="ideation and brainstorming">Ideation & brainstorming</option>
+                            <option value="CUSTOM">Custom...</option>
+                        </select>
+                        <input type="text" id="customStdTasks" class="memory-input custom-entry hidden" placeholder="e.g., architectural planning and risk assessment">
+                    </div>
+                </div>
+
+                <!-- PRO VERSION FORM -->
+                <div id="form-pro" class="hidden space-y-12">
+                    
+                    <!-- 1. Creation Diligence -->
+                    <section class="space-y-6">
+                        <h2 class="text-2xl font-semibold flex items-center gap-3">
+                            <span class="text-blue-600 text-sm">01</span> Creation Diligence
+                        </h2>
+                        <div class="space-y-6">
+                            <div>
+                                <span class="label-caps">AI Systems & Selection Logic</span>
+                                <span class="hint-text">Which AI systems did you choose and why?</span>
+                                <select id="aiSystems" onchange="handleCustomInput(this, 'customAiSystem')" class="memory-input">
+                                    <option value="Gemini for its strong reasoning and Google search integration">Gemini (Reasoning & Search)</option>
+                                    <option value="Claude for its natural writing style and large context window">Claude (Writing & Nuance)</option>
+                                    <option value="ChatGPT for its versatility and specialized GPT capabilities">ChatGPT (Versatility)</option>
+                                    <option value="Perplexity for real-time sourcing and citation accuracy">Perplexity (Sourcing)</option>
+                                    <option value="CUSTOM">Custom system & logic...</option>
+                                </select>
+                                <input type="text" id="customAiSystem" class="memory-input custom-entry hidden" placeholder="e.g., Llama 3 for local privacy">
+                            </div>
+                            <div>
+                                <span class="label-caps">Information Shared</span>
+                                <span class="hint-text">What data or information did you share with the AI?</span>
+                                <select id="dataShared" onchange="handleCustomInput(this, 'customDataShared')" class="memory-input">
+                                    <option value="rough notes, internal outlines, and general project goals">Rough notes & outlines</option>
+                                    <option value="anonymized data sets and public research materials">Anonymized data & public research</option>
+                                    <option value="draft scripts and non-proprietary code snippets">Scripts & code snippets</option>
+                                    <option value="transcripts from meetings and key stakeholder requirements">Meeting transcripts & requirements</option>
+                                    <option value="CUSTOM">Custom info description...</option>
+                                </select>
+                                <input type="text" id="customDataShared" class="memory-input custom-entry hidden" placeholder="Describe the information">
+                            </div>
+                            <div>
+                                <span class="label-caps">Privacy & Ethics</span>
+                                <span class="hint-text">Were there any security or ethical considerations?</span>
+                                <select id="ethics" onchange="handleCustomInput(this, 'customEthics')" class="memory-input">
+                                    <option value="I ensured all sensitive personal info (PII) was removed before sharing">PII Redaction</option>
+                                    <option value="I used a secure Enterprise environment to protect company data">Secure Enterprise Environment</option>
+                                    <option value="I strictly avoided sharing any proprietary secrets or passwords">Avoided Proprietary Secrets</option>
+                                    <option value="I reviewed the AI's training policy to ensure data isn't used for learning">Training Opt-out Review</option>
+                                    <option value="CUSTOM">Custom consideration...</option>
+                                </select>
+                                <input type="text" id="customEthics" class="memory-input custom-entry hidden" placeholder="Describe security measures">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 2. Transparency Diligence -->
+                    <section class="space-y-6">
+                        <h2 class="text-2xl font-semibold flex items-center gap-3">
+                            <span class="text-blue-600 text-sm">02</span> Transparency Diligence
+                        </h2>
+                        <div class="space-y-6">
+                            <div>
+                                <span class="label-caps">Target Audience</span>
+                                <span class="hint-text">Who is the audience for this project?</span>
+                                <select id="audience" onchange="handleCustomInput(this, 'customAudience')" class="memory-input">
+                                    <option value="internal management and executive leadership">Internal Leadership</option>
+                                    <option value="our external clients and stakeholders">External Clients</option>
+                                    <option value="the general public and potential users">General Public</option>
+                                    <option value="technical peers for code review">Technical Peers</option>
+                                    <option value="CUSTOM">Custom audience...</option>
+                                </select>
+                                <input type="text" id="customAudience" class="memory-input custom-entry hidden" placeholder="Who is reading this?">
+                            </div>
+                            <div>
+                                <span class="label-caps">Disclosure Expectations</span>
+                                <span class="hint-text">What expectations might they have regarding AI disclosure?</span>
+                                <select id="expectations" onchange="handleCustomInput(this, 'customExpectations')" class="memory-input">
+                                    <option value="they expect full transparency about the tools used in the process">Full Transparency</option>
+                                    <option value="they prioritize accuracy over the specific tools used">Accuracy-First</option>
+                                    <option value="they follow standard industry protocols for AI-assisted work">Standard Industry Protocols</option>
+                                    <option value="CUSTOM">Custom expectation...</option>
+                                </select>
+                                <input type="text" id="customExpectations" class="memory-input custom-entry hidden" placeholder="Describe the expectation">
+                            </div>
+                            <div>
+                                <span class="label-caps">Specific Contributions</span>
+                                <span class="hint-text">How specifically did AI contribute to your work?</span>
+                                <select id="contributions" onchange="handleCustomInput(this, 'customContributions')" class="memory-input">
+                                    <option value="structuring complex information and generating initial drafts">Structuring & Drafting</option>
+                                    <option value="summarizing long documents and identifying key takeaways">Summarization & Analysis</option>
+                                    <option value="debugging code and optimizing performance logic">Debugging & Logic Optimization</option>
+                                    <option value="brainstorming creative angles and edge-case scenarios">Ideation & Edge-Cases</option>
+                                    <option value="CUSTOM">Custom contribution...</option>
+                                </select>
+                                <input type="text" id="customContributions" class="memory-input custom-entry hidden" placeholder="Describe the task">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 3. Deployment Diligence -->
+                    <section class="space-y-6">
+                        <h2 class="text-2xl font-semibold flex items-center gap-3">
+                            <span class="text-blue-600 text-sm">03</span> Deployment Diligence
+                        </h2>
+                        <div class="space-y-6">
+                            <div>
+                                <span class="label-caps">Verification Process</span>
+                                <span class="hint-text">How did you verify the accuracy of AI contributions?</span>
+                                <select id="verification" onchange="handleCustomInput(this, 'customVerification')" class="memory-input">
+                                    <option value="manually fact-checking all claims against primary sources">Manual Fact-Checking</option>
+                                    <option value="running technical tests and peer-reviewing logic">Functional Testing / Peer Review</option>
+                                    <option value="comparing AI output against my own subject matter expertise">Expert Review</option>
+                                    <option value="CUSTOM">Custom verification...</option>
+                                </select>
+                                <input type="text" id="customVerification" class="memory-input custom-entry hidden" placeholder="Describe your check">
+                            </div>
+                            <div>
+                                <span class="label-caps">Quality Assurance</span>
+                                <span class="hint-text">How did you ensure it meets your standards?</span>
+                                <select id="qa" onchange="handleCustomInput(this, 'customQa')" class="memory-input">
+                                    <option value="it aligns with our established brand voice and quality guidelines">Brand Alignment</option>
+                                    <option value="it solves the core problem effectively and efficiently">Problem-Solving Efficiency</option>
+                                    <option value="it meets the necessary compliance and regulatory requirements">Compliance Check</option>
+                                    <option value="CUSTOM">Custom QA...</option>
+                                </select>
+                                <input type="text" id="customQa" class="memory-input custom-entry hidden" placeholder="Describe the standard">
+                            </div>
+                            <div>
+                                <span class="label-caps">Final Accountability</span>
+                                <span class="hint-text">What responsibility are you taking?</span>
+                                <select id="responsibility" onchange="handleCustomInput(this, 'customResponsibility')" class="memory-input font-medium">
+                                    <option value="I maintain full ownership and accountability for the final result.">Full Ownership</option>
+                                    <option value="I stand behind the accuracy and integrity of this submission.">Accuracy Guarantee</option>
+                                    <option value="I take responsibility for the final decisions reflected here.">Decision Accountability</option>
+                                    <option value="CUSTOM">Custom statement...</option>
+                                </select>
+                                <input type="text" id="customResponsibility" class="memory-input custom-entry hidden" placeholder="Custom ownership...">
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <button onclick="generateProtocol()" class="btn-primary w-full justify-center py-4 text-lg mt-8">
+                    Generate AI Diligence Statement <i class="fas fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Preview Column -->
+            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-8">
+                
+                <div class="memory-card p-8 bg-white/50 backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-bolt text-blue-600"></i>
+                        <span id="tip-title" class="font-bold text-sm tracking-tight">Standard Disclosure</span>
+                    </div>
+                    <p id="tip-text" class="text-sm text-gray-500 leading-relaxed italic">
+                        This standard statement provides a legally-minded, professional baseline for acknowledging AI collaboration.
+                    </p>
+                </div>
+
+                <div id="emptyState" class="word-doc-container p-12 text-center flex flex-col items-center justify-center">
+                    <div class="margin-mark top-left"></div>
+                    <div class="margin-mark top-right"></div>
+                    <div class="margin-mark bottom-left"></div>
+                    <div class="margin-mark bottom-right"></div>
+                    <div class="doc-guide-h"></div>
+                    <div class="doc-guide-v"></div>
+
+                    <i class="fas fa-file-signature text-blue-100 text-5xl mb-6"></i>
+                    <p class="text-gray-400 font-medium text-sm">Populate statement to view document...</p>
+                </div>
+
+                <div id="outputContainer" class="hidden space-y-4">
+                    <div class="word-doc-container p-16 relative overflow-hidden">
+                        <div class="margin-mark top-left"></div>
+                        <div class="margin-mark top-right"></div>
+                        <div class="margin-mark bottom-left"></div>
+                        <div class="margin-mark bottom-right"></div>
+                        <div class="doc-guide-h"></div>
+                        <div class="doc-guide-v"></div>
+
+                        <div id="statementOutput" class="text-sm leading-relaxed text-gray-800">
+                        </div>
+                        
+                        <div class="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
+                            <span id="doc-stamp" class="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-300">AI Diligence Statement</span>
+                            <button onclick="copyToClipboard()" class="text-blue-600 text-[10px] font-bold tracking-widest uppercase hover:underline">
+                                Copy Text
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 px-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Statement Verified</span>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="mt-24 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-300">
+            Vibe-coded by <a href="https://www.linkedin.com/in/trustinneo/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Trustin</a>
+        </footer>
+    </div>
+
+    <script>
+        let currentTab = 'standard';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-standard').classList.toggle('active', tab === 'standard');
+            document.getElementById('tab-pro').classList.toggle('active', tab === 'pro');
+            document.getElementById('form-standard').classList.toggle('hidden', tab !== 'standard');
+            document.getElementById('form-pro').classList.toggle('hidden', tab !== 'pro');
+
+            if (tab === 'standard') {
+                document.getElementById('tip-title').innerText = "Standard Disclosure";
+                document.getElementById('tip-text').innerText = "This standard statement provides a legally-minded, professional baseline for acknowledging AI collaboration.";
+                document.getElementById('doc-stamp').innerText = "AI Diligence Statement";
+            } else {
+                document.getElementById('tip-title').innerText = "Professional Diligence";
+                document.getElementById('tip-text').innerText = "The professional version provides a detailed audit of creation logic, transparency measures, and deployment verification.";
+                document.getElementById('doc-stamp').innerText = "Comprehensive AI Diligence Report";
+            }
+        }
+
+        function handleCustomInput(selectElement, inputId) {
+            const customInput = document.getElementById(inputId);
+            if (selectElement.value === 'CUSTOM') {
+                customInput.classList.remove('hidden');
+                customInput.focus();
+            } else {
+                customInput.classList.add('hidden');
+            }
+        }
+
+        function getFieldValue(selectId, inputId) {
+            const select = document.getElementById(selectId);
+            if (select && select.value === 'CUSTOM') {
+                return document.getElementById(inputId).value || `[custom entry]`;
+            }
+            return select ? select.value : '';
+        }
+
+        function generateProtocol() {
+            let statement = '';
+            
+            if (currentTab === 'standard') {
+                const project = getFieldValue('stdProjectType', 'customStdProjectType');
+                const assistant = getFieldValue('stdAiName', 'customStdAiName');
+                const tasks = getFieldValue('stdTasks', 'customStdTasks');
+
+                statement = `
+                    <div class="space-y-8">
+                        <h3 class="text-3xl serif-heading">AI Diligence Statement</h3>
+                        <div class="space-y-5 text-gray-700 italic leading-loose">
+                            <p>"In creating this <strong>${project}</strong>, I collaborated with <strong>${assistant}</strong> to assist with <strong>${tasks}</strong>. I affirm that all AI-generated and co-created content underwent thorough review and evaluation. The final output accurately reflects my understanding, expertise, and intended meaning. While AI assistance was instrumental in the process, I maintain full responsibility for the content, its accuracy, and its presentation. This disclosure is made in the spirit of transparency and to acknowledge the role of AI in the creation process."</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const fields = {
+                    system: getFieldValue('aiSystems', 'customAiSystem'),
+                    data: getFieldValue('dataShared', 'customDataShared'),
+                    ethics: getFieldValue('ethics', 'customEthics'),
+                    audience: getFieldValue('audience', 'customAudience'),
+                    expectations: getFieldValue('expectations', 'customExpectations'),
+                    contributions: getFieldValue('contributions', 'customContributions'),
+                    verification: getFieldValue('verification', 'customVerification'),
+                    qa: getFieldValue('qa', 'customQa'),
+                    responsibility: getFieldValue('responsibility', 'customResponsibility')
+                };
+
+                statement = `
+                    <div class="space-y-8">
+                        <h3 class="text-3xl serif-heading">AI Diligence Statement</h3>
+                        <div class="space-y-6 text-gray-700 leading-relaxed">
+                            <p>For this project, I utilized <strong>${fields.system}</strong>. The creation process involved sharing ${fields.data}, with strict adherence to privacy and ethical standards, specifically ${fields.ethics}.</p>
+                            
+                            <p>This work is intended for <strong>${fields.audience}</strong>. Recognizing that ${fields.expectations}, I am disclosing that AI was instrumental in ${fields.contributions}.</p>
+
+                            <p>To ensure the final product met my professional requirements, I performed ${fields.verification} and confirmed that ${fields.qa}. ${fields.responsibility}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('statementOutput').innerHTML = statement;
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('outputContainer').classList.remove('hidden');
+            
+            const container = document.getElementById('outputContainer');
+            window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('statementOutput').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            
+            const btn = event.currentTarget;
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED";
+            setTimeout(() => btn.innerText = originalText, 2000);
+        }
+    </script>
+</body>
+</html>
