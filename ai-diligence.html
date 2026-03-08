@@ -6,8 +6,8 @@
     <title>AI Diligence Generator | Practitioner Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script data-goatcounter="https://owysswerkin.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+    <!-- GoatCounter Analytics -->
+    <script data-goatcounter="https://owysswerkin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -168,6 +168,20 @@
         }
 
         ::-webkit-scrollbar { display: none; }
+        
+        /* GoatCounter Styling */
+        #visitor-count-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: 'Instrument Serif', serif;
+            color: var(--memory-blue);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        #stats-value { font-weight: bold; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -423,12 +437,36 @@
             </div>
         </main>
 
-        <footer class="mt-24 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-300">
-            Vibe-coded by <a href="https://www.linkedin.com/in/trustinneo/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Trustin</a>
+        <footer class="mt-24 text-center">
+            <!-- Visitor Counter -->
+            <div id="visitor-count-container">
+                <i class="fas fa-eye text-xs opacity-50"></i>
+                <span id="stats-label">Visitors:</span>
+                <span id="stats-value">...</span>
+            </div>
+            <div class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-300">
+                Figure It Out + Cost-Aware Autonomy Directive
+            </div>
         </footer>
     </div>
 
     <script>
+        // Fetch GoatCounter stats and update the UI
+        window.addEventListener('load', function() {
+            var url = 'https://owysswerkin.goatcounter.com/counter/' + encodeURIComponent(location.host + location.pathname) + '.json';
+            var request = new XMLHttpRequest();
+            request.addEventListener('load', function() {
+                try {
+                    var data = JSON.parse(this.responseText);
+                    document.getElementById('stats-value').innerText = data.count || '0';
+                } catch (e) {
+                    document.getElementById('stats-value').innerText = '0';
+                }
+            });
+            request.open('GET', url);
+            request.send();
+        });
+
         let currentTab = 'standard';
 
         function switchTab(tab) {
